@@ -6,7 +6,7 @@ This file configures AI coding assistants for Solana program development. Follow
 
 Uncomment and configure based on your project:
 
-```
+```en
 # Framework: anchor | native | pinocchio | steel
 # Client: typescript (@solana/kit) | rust | python
 # Testing: mollusk | litesvm | bankrun | anchor-test
@@ -20,6 +20,7 @@ Uncomment and configure based on your project:
 ### NEVER
 
 1. **NEVER use deprecated crates:**
+
    - `solana-program` < 2.0 → use `solana-program` 2.x or `pinocchio`
    - `solana-sdk` < 2.0 → use `solana-sdk` 2.x
    - `spl-token` < 5.0 → use `spl-token` 5.x or `spl-token-2022`
@@ -28,6 +29,7 @@ Uncomment and configure based on your project:
 2. **NEVER deploy to mainnet without explicit user confirmation** - always ask first
 
 3. **NEVER use unchecked arithmetic:**
+
    ```rust
    // WRONG
    let total = amount_a + amount_b;
@@ -47,6 +49,7 @@ Uncomment and configure based on your project:
 ### ALWAYS
 
 1. **ALWAYS verify account ownership before reading/writing:**
+
    ```rust
    if *account.owner != expected_program_id {
        return Err(ProgramError::IncorrectProgramId);
@@ -67,18 +70,19 @@ Uncomment and configure based on your project:
 
 ## Framework Selection
 
-| Scenario | Recommendation | Reason |
-|----------|---------------|--------|
-| Rapid prototyping | Anchor | Auto-generated IDL, better DX |
-| Team collaboration | Anchor | Standardized patterns |
-| CU optimization critical | Pinocchio | 80-95% CU reduction |
-| Maximum control needed | Pinocchio/Native | Zero-copy, no abstractions |
-| Minimal binary size | Pinocchio | Smallest footprint |
-| Native + better DX | Steel | Balance of control and ergonomics |
+| Scenario                 | Recommendation   | Reason                            |
+| ------------------------ | ---------------- | --------------------------------- |
+| Rapid prototyping        | Anchor           | Auto-generated IDL, better DX     |
+| Team collaboration       | Anchor           | Standardized patterns             |
+| CU optimization critical | Pinocchio        | 80-95% CU reduction               |
+| Maximum control needed   | Pinocchio/Native | Zero-copy, no abstractions        |
+| Minimal binary size      | Pinocchio        | Smallest footprint                |
+| Native + better DX       | Steel            | Balance of control and ergonomics |
 
 ### When to Optimize
 
 Start with Anchor. Optimize to Pinocchio/Native when:
+
 - Transaction costs become significant at scale
 - CU limits are being hit
 - Binary size affects deployment costs
@@ -91,6 +95,7 @@ Start with Anchor. Optimize to Pinocchio/Native when:
 ### Account Validation Order
 
 Always validate in this order:
+
 1. Account ownership
 2. Signer status
 3. PDA derivation
@@ -186,12 +191,12 @@ pub enum ErrorCode {
 
 ### Framework Selection
 
-| Framework | Best For | Speed |
-|-----------|----------|-------|
-| Mollusk | Unit tests, CU benchmarking | Fastest |
-| LiteSVM | Integration tests, multi-program | Fast |
-| Surfpool | Mainnet state simulation | Medium |
-| Anchor test | E2E with TypeScript clients | Slower |
+| Framework   | Best For                         | Speed   |
+| ----------- | -------------------------------- | ------- |
+| Mollusk     | Unit tests, CU benchmarking      | Fastest |
+| LiteSVM     | Integration tests, multi-program | Fast    |
+| Surfpool    | Mainnet state simulation         | Medium  |
+| Anchor test | E2E with TypeScript clients      | Slower  |
 
 ### Mollusk Example
 
@@ -247,10 +252,10 @@ fn test_integration() {
 
 ```typescript
 import {
-    createSolanaRpc,
-    sendAndConfirmTransaction,
-    getComputeUnitEstimate
-} from '@solana/kit';
+  createSolanaRpc,
+  sendAndConfirmTransaction,
+  getComputeUnitEstimate,
+} from "@solana/kit";
 
 // Always simulate first
 const simulation = await rpc.simulateTransaction(transaction);
@@ -258,12 +263,12 @@ const estimatedCUs = simulation.value.unitsConsumed;
 
 // Set CU limit to 1.2x estimate
 const computeBudgetIx = getSetComputeUnitLimitInstruction({
-    units: Math.ceil(estimatedCUs * 1.2)
+  units: Math.ceil(estimatedCUs * 1.2),
 });
 
 // Add priority fee during congestion
 const priorityFeeIx = getSetComputeUnitPriceInstruction({
-    microLamports: 1000n
+  microLamports: 1000n,
 });
 ```
 
@@ -440,14 +445,14 @@ pub struct Config {
 
 ### Compute Unit Costs (Approximate)
 
-| Operation | CUs |
-|-----------|-----|
-| Basic instruction | 200 |
-| Pubkey creation | 1,500 |
-| SHA256 hash | 100 per 64 bytes |
-| Account creation | 2,000 |
-| CPI call | 1,000 + callee CUs |
-| Signature verification | 2,000 |
+| Operation              | CUs                |
+| ---------------------- | ------------------ |
+| Basic instruction      | 200                |
+| Pubkey creation        | 1,500              |
+| SHA256 hash            | 100 per 64 bytes   |
+| Account creation       | 2,000              |
+| CPI call               | 1,000 + callee CUs |
+| Signature verification | 2,000              |
 
 ### Transaction Limits
 
@@ -459,6 +464,7 @@ pub struct Config {
 ### RPC Providers
 
 For production, use paid RPC providers:
+
 - Helius, QuickNode, Triton, Alchemy
 - Free tiers will fail under load
 - Budget $100-300/month for production apps
