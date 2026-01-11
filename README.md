@@ -5,6 +5,7 @@ A CLAUDE.md configuration file for AI coding assistants building Solana programs
 ## The Problem
 
 AI coding assistants frequently make these mistakes when writing Solana code:
+
 - Using outdated libraries (`solana-program` 1.x, `@solana/web3.js` 1.x)
 - Missing critical account validation (owner checks, signer checks, PDA verification)
 - Using unsafe arithmetic without overflow protection
@@ -14,9 +15,10 @@ AI coding assistants frequently make these mistakes when writing Solana code:
 ## The Solution
 
 Drop `CLAUDE.md` into your Solana project root. The file configures AI assistants to:
+
 - Use modern libraries (Pinocchio, `solana-program` 2.x, `@solana/kit`)
 - Follow security best practices with explicit validation patterns
-- Choose appropriate frameworks (Anchor vs Native/Pinocchio)
+- Choose appropriate frameworks (Anchor vs Native)
 - Test properly with modern tools (Mollusk, LiteSVM)
 - Never deploy to mainnet without asking first
 
@@ -35,16 +37,16 @@ That's it. The AI assistant will automatically read and follow the rules.
 
 ## What's Included
 
-| Section | Purpose |
-|---------|---------|
-| Critical Rules | NEVER/ALWAYS rules that prevent common mistakes |
-| Framework Selection | When to use Anchor vs Pinocchio vs Steel |
-| Program Patterns | Account validation with code examples |
-| Testing | Mollusk, LiteSVM, Surfpool guidance |
-| Client Development | Modern TypeScript patterns with @solana/kit |
-| Deployment | Pre-flight checklist and mainnet safeguards |
-| Security Checklist | Comprehensive validation requirements |
-| AI Pitfalls | Explicit anti-patterns with corrections |
+| Section             | Purpose                                         |
+| ------------------- | ----------------------------------------------- |
+| Critical Rules      | NEVER/ALWAYS rules that prevent common mistakes |
+| Framework Selection | When to use Anchor vs Pinocchio vs Steel        |
+| Program Patterns    | Account validation with code examples           |
+| Testing             | Mollusk, LiteSVM, Surfpool guidance             |
+| Client Development  | Modern TypeScript patterns with @solana/kit     |
+| Deployment          | Pre-flight checklist and mainnet safeguards     |
+| Security Checklist  | Comprehensive validation requirements           |
+| AI Pitfalls         | Explicit anti-patterns with corrections         |
 
 ## Customization
 
@@ -56,8 +58,11 @@ Uncomment and configure the stack section at the top:
 
 ```markdown
 # Framework: anchor
+
 # Client: typescript (@solana/kit)
+
 # Testing: mollusk
+
 # Local: surfpool
 ```
 
