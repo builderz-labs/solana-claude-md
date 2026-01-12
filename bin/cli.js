@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { createInterface } from "readline";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -33,9 +32,9 @@ const COLORS = {
   dim: "\x1b[2m",
   green: "\x1b[32m",
   yellow: "\x1b[33m",
-  blue: "\x1b[34m",
-  magenta: "\x1b[35m",
   cyan: "\x1b[36m",
+  magenta: "\x1b[35m",
+  red: "\x1b[31m",
 };
 
 function color(text, colorName) {
@@ -45,89 +44,13 @@ function color(text, colorName) {
 function printBanner() {
   console.log();
   console.log(color("  ╔═══════════════════════════════════════════════╗", "magenta"));
-  console.log(color("  ║", "magenta") + color("   solana-claude-md", "bright") + color("                       ║", "magenta"));
-  console.log(color("  ║", "magenta") + color("   AI assistant config for Solana development", "dim") + color("  ║", "magenta"));
+  console.log(color("  ║", "magenta") + color("   solana-claude-md                            ", "bright") + color("║", "magenta"));
+  console.log(color("  ║", "magenta") + color("   AI assistant config for Solana development  ", "dim") + color("║", "magenta"));
   console.log(color("  ╚═══════════════════════════════════════════════╝", "magenta"));
   console.log();
 }
 
-function createPrompt() {
-  return createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-}
-
-async function ask(rl, question) {
-  return new Promise((resolve) => {
-    rl.question(question, (answer) => {
-      resolve(answer.trim().toLowerCase());
-    });
-  });
-}
-
-async function selectFiles(rl) {
-  console.log(color("Which files would you like to install?", "bright"));
-  console.log();
-  console.log(`  ${color("1.", "cyan")} ${color("CLAUDE.md", "bright")} - ${FILES.claude.description}`);
-  console.log(`  ${color("2.", "cyan")} ${color("SOLANA_EXPERT_AGENT.md", "bright")} - ${FILES.backend.description}`);
-  console.log(`  ${color("3.", "cyan")} ${color("SOLANA_FRONTEND_AGENT.md", "bright")} - ${FILES.frontend.description}`);
-  console.log(`  ${color("4.", "cyan")} ${color("All files", "bright")} - Install everything`);
-  console.log();
-
-  const answer = await ask(rl, color("Enter your choice (1-4, or comma-separated like 1,2): ", "yellow"));
-
-  if (answer === "4" || answer === "all") {
-    return ["claude", "backend", "frontend"];
-  }
-
-  const selected = [];
-  const choices = answer.split(",").map((c) => c.trim());
-
-  for (const choice of choices) {
-    if (choice === "1") selected.push("claude");
-    if (choice === "2") selected.push("backend");
-    if (choice === "3") selected.push("frontend");
-  }
-
-  return [...new Set(selected)]; // Remove duplicates
-}
-
-function copyFile(key, targetDir) {
-  const file = FILES[key];
-  const targetPath = join(targetDir, file.name);
-
-  if (existsSync(targetPath)) {
-    console.log(`  ${color("⚠", "yellow")}  ${file.name} already exists, ${color("skipping", "dim")}`);
-    return false;
-  }
-
-  try {
-    const content = readFileSync(file.path, "utf-8");
-    writeFileSync(targetPath, content);
-    console.log(`  ${color("✓", "green")}  ${file.name} ${color("created", "dim")}`);
-    return true;
-  } catch (error) {
-    console.log(`  ${color("✗", "red")}  Failed to create ${file.name}: ${error.message}`);
-    return false;
-  }
-}
-
-async function confirmOverwrite(rl, existingFiles) {
-  if (existingFiles.length === 0) return true;
-
-  console.log();
-  console.log(color("The following files already exist:", "yellow"));
-  for (const file of existingFiles) {
-    console.log(`  - ${file}`);
-  }
-  console.log();
-
-  const answer = await ask(rl, color("Overwrite existing files? (y/N): ", "yellow"));
-  return answer === "y" || answer === "yes";
-}
-
-async function main() {
+function main() {
   const args = process.argv.slice(2);
   const targetDir = process.cwd();
 
@@ -136,113 +59,83 @@ async function main() {
     printBanner();
     console.log("Usage: npx solana-claude-md [options]");
     console.log();
+    console.log("Installs AI assistant configuration files for Solana development.");
+    console.log("By default, installs all files (skips existing ones).");
+    console.log();
     console.log("Options:");
-    console.log("  --all        Install all files without prompts");
     console.log("  --claude     Install only CLAUDE.md");
     console.log("  --backend    Install only SOLANA_EXPERT_AGENT.md");
     console.log("  --frontend   Install only SOLANA_FRONTEND_AGENT.md");
     console.log("  --force      Overwrite existing files");
     console.log("  --help, -h   Show this help message");
     console.log();
+    console.log("Examples:");
+    console.log("  npx solana-claude-md              # Install all files");
+    console.log("  npx solana-claude-md --force      # Install all, overwrite existing");
+    console.log("  npx solana-claude-md --backend    # Install only backend agent");
+    console.log();
     process.exit(0);
   }
 
   printBanner();
 
-  // Handle non-interactive flags
+  // Handle flags
   const force = args.includes("--force");
   let selectedFiles = [];
 
-  if (args.includes("--all")) {
+  // Check for specific file flags
+  if (args.includes("--claude")) selectedFiles.push("claude");
+  if (args.includes("--backend")) selectedFiles.push("backend");
+  if (args.includes("--frontend")) selectedFiles.push("frontend");
+
+  // Default: install all files
+  if (selectedFiles.length === 0) {
     selectedFiles = ["claude", "backend", "frontend"];
-  } else if (args.includes("--claude")) {
-    selectedFiles.push("claude");
-  } else if (args.includes("--backend")) {
-    selectedFiles.push("backend");
-  } else if (args.includes("--frontend")) {
-    selectedFiles.push("frontend");
   }
 
-  // If flags provided specific files, use those
-  if (args.some((a) => a.startsWith("--") && a !== "--force")) {
-    if (selectedFiles.length === 0) {
-      console.log(color("No valid file selection. Use --help for options.", "yellow"));
-      process.exit(1);
+  console.log(color("Installing files...", "bright"));
+  console.log();
+
+  let installed = 0;
+  let skipped = 0;
+
+  for (const key of selectedFiles) {
+    const file = FILES[key];
+    const targetPath = join(targetDir, file.name);
+
+    // Check if file exists
+    if (existsSync(targetPath) && !force) {
+      console.log(`  ${color("○", "yellow")}  ${file.name} ${color("(already exists, skipping)", "dim")}`);
+      skipped++;
+      continue;
+    }
+
+    try {
+      const content = readFileSync(file.path, "utf-8");
+      writeFileSync(targetPath, content);
+      const action = existsSync(targetPath) && force ? "overwritten" : "created";
+      console.log(`  ${color("✓", "green")}  ${file.name}`);
+      installed++;
+    } catch (error) {
+      console.log(`  ${color("✗", "red")}  ${file.name} - ${error.message}`);
     }
   }
 
-  const rl = createPrompt();
+  console.log();
 
-  try {
-    // Interactive selection if no flags
-    if (selectedFiles.length === 0) {
-      selectedFiles = await selectFiles(rl);
-
-      if (selectedFiles.length === 0) {
-        console.log(color("No files selected. Exiting.", "yellow"));
-        rl.close();
-        process.exit(0);
-      }
-    }
-
-    // Check for existing files
-    const existingFiles = selectedFiles
-      .map((key) => FILES[key].name)
-      .filter((name) => existsSync(join(targetDir, name)));
-
-    if (existingFiles.length > 0 && !force) {
-      const shouldOverwrite = await confirmOverwrite(rl, existingFiles);
-      if (!shouldOverwrite) {
-        console.log();
-        console.log(color("Installation cancelled.", "yellow"));
-        rl.close();
-        process.exit(0);
-      }
-    }
-
-    // Copy files
+  if (installed > 0) {
+    console.log(color(`Installed ${installed} file(s)`, "green") + (skipped > 0 ? color(`, skipped ${skipped}`, "dim") : ""));
     console.log();
-    console.log(color("Installing files...", "bright"));
-    console.log();
-
-    let installed = 0;
-    for (const key of selectedFiles) {
-      const file = FILES[key];
-      const targetPath = join(targetDir, file.name);
-
-      // Remove existing if force or confirmed
-      if (existsSync(targetPath) && (force || existingFiles.includes(file.name))) {
-        // Will overwrite
-      }
-
-      try {
-        const content = readFileSync(file.path, "utf-8");
-        writeFileSync(targetPath, content);
-        console.log(`  ${color("✓", "green")}  ${file.name}`);
-        installed++;
-      } catch (error) {
-        console.log(`  ${color("✗", "red")}  ${file.name} - ${error.message}`);
-      }
-    }
-
-    console.log();
-    if (installed > 0) {
-      console.log(color(`Successfully installed ${installed} file(s)!`, "green"));
-      console.log();
-      console.log(color("Next steps:", "bright"));
-      console.log(`  1. The AI assistant will automatically read these files`);
-      console.log(`  2. Start coding and enjoy better Solana development!`);
-      console.log();
-      console.log(color("Documentation:", "dim") + " https://github.com/builderz-labs/solana-claude-md");
-    } else {
-      console.log(color("No files were installed.", "yellow"));
-    }
-  } finally {
-    rl.close();
+    console.log(color("The AI assistant will automatically read these files.", "dim"));
+    console.log(color("Docs:", "dim") + " https://github.com/builderz-labs/solana-claude-md");
+  } else if (skipped > 0) {
+    console.log(color(`All ${skipped} file(s) already exist.`, "yellow"));
+    console.log(color("Use --force to overwrite.", "dim"));
+  } else {
+    console.log(color("No files were installed.", "yellow"));
   }
+
+  console.log();
 }
 
-main().catch((error) => {
-  console.error(color(`Error: ${error.message}`, "red"));
-  process.exit(1);
-});
+main();

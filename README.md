@@ -33,7 +33,7 @@ AI coding assistants frequently make these mistakes when writing Solana code:
 npx solana-claude-md
 ```
 
-This launches an interactive prompt to select which files to install:
+This installs all three configuration files to your current directory:
 
 ```
   ╔═══════════════════════════════════════════════╗
@@ -41,29 +41,25 @@ This launches an interactive prompt to select which files to install:
   ║   AI assistant config for Solana development  ║
   ╚═══════════════════════════════════════════════╝
 
-Which files would you like to install?
+Installing files...
 
-  1. CLAUDE.md - Basic rules & constraints for any AI assistant
-  2. SOLANA_EXPERT_AGENT.md - Backend expert (programs, DeFi, security)
-  3. SOLANA_FRONTEND_AGENT.md - Frontend expert (UI/UX, design)
-  4. All files - Install everything
+  ✓  CLAUDE.md
+  ✓  SOLANA_EXPERT_AGENT.md
+  ✓  SOLANA_FRONTEND_AGENT.md
 
-Enter your choice (1-4, or comma-separated like 1,2):
+Installed 3 file(s)
 ```
 
 #### CLI Options
 
 ```bash
-# Install all files without prompts
-npx solana-claude-md --all
-
-# Install specific files
+# Install specific files only
 npx solana-claude-md --claude      # Just CLAUDE.md
 npx solana-claude-md --backend     # Just backend agent
 npx solana-claude-md --frontend    # Just frontend agent
 
 # Overwrite existing files
-npx solana-claude-md --all --force
+npx solana-claude-md --force
 ```
 
 ### Option 2: curl (Manual)
