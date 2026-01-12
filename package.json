@@ -1,0 +1,38 @@
+{
+  "name": "solana-claude-md",
+  "version": "1.0.0",
+  "description": "AI coding assistant configuration files for Solana development",
+  "keywords": [
+    "solana",
+    "claude",
+    "ai",
+    "coding-assistant",
+    "blockchain",
+    "web3",
+    "defi",
+    "nft"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/builderz-labs/solana-claude-md.git"
+  },
+  "homepage": "https://github.com/builderz-labs/solana-claude-md#readme",
+  "bugs": {
+    "url": "https://github.com/builderz-labs/solana-claude-md/issues"
+  },
+  "type": "module",
+  "bin": {
+    "solana-claude-md": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "CLAUDE.md",
+    "SOLANA_EXPERT_AGENT.md",
+    "SOLANA_FRONTEND_AGENT.md"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
